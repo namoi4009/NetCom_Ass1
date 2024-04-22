@@ -1,6 +1,6 @@
 import socket
 import threading
-import json
+import signal
 
 class Server:
     def __init__(self, host='127.0.0.1', port=65432):
@@ -8,9 +8,9 @@ class Server:
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server_socket.bind(self.address)
         self.server_socket.listen()
+        self.active_connections = []
+        self.is_running = True
         print(f"Server listening on {host}:{port}")
-        self.client_map = {}
-        self.lock = threading.Lock()
 
     def handle_client(self, conn, addr):
         print(f"Connected by {addr}")
@@ -19,32 +19,35 @@ class Server:
                 data = conn.recv(1024)
                 if not data:
                     break
-                message = json.loads(data.decode('utf-8'))
-                if message['type'] == 'announce':
-                    with self.lock:
-                        self.client_map[addr] = message['files']
-                    print(f"Received file list from {addr}")
-                elif message['type'] == 'request':
-                    requested_file = message['file']
-                    with self.lock:
-                        available_clients = [
-                            client for client, files in self.client_map.items()
-                            if requested_file in files
-                        ]
-                    response = json.dumps({'clients': available_clients}).encode('utf-8')
-                    conn.sendall(response)
+                # Process data here
+                print(f"Data from {addr}: {data.decode()}")
         finally:
-            with self.lock:
-                del self.client_map[addr]
-            conn.close()
             print(f"Disconnected {addr}")
+            conn.close()
 
     def run(self):
-        while True:
-            conn, addr = self.server_socket.accept()
-            thread = threading.Thread(target=self.handle_client, args=(conn, addr))
-            thread.start()
+        self.server_socket.settimeout(1)  # Set timeout to make the accept call non-blocking
+        while self.is_running:
+            try:
+                conn, addr = self.server_socket.accept()
+                thread = threading.Thread(target=self.handle_client, args=(conn, addr))
+                thread.start()
+                self.active_connections.append(conn)
+            except socket.timeout:
+                continue
+            except KeyboardInterrupt:
+                self.shutdown_server()
+
+    def shutdown_server(self):
+        print("Shutting down server...")
+        self.is_running = False
+        for conn in self.active_connections:
+            conn.close()
+        self.server_socket.close()
 
 if __name__ == "__main__":
     server = Server()
-    server.run()
+    try:
+        server.run()
+    except KeyboardInterrupt:
+        server.shutdown_server()
