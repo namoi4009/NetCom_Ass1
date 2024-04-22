@@ -1,23 +1,36 @@
 import socket
+import threading
+import json
+import sys
 
-# Server configuration
-SERVER_HOST = 'localhost'
-SERVER_PORT = 5001
-BUFFER_SIZE = 1024
+class Client:
+    def __init__(self, host='127.0.0.1', port=65432, files=None):
+        self.server_address = (host, port)
+        self.files = files if files else []
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket.connect(self.server_address)
+        self.send_announce()
 
-def request_file_part(part_no):
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect((SERVER_HOST, SERVER_PORT))
-        s.sendall(str(part_no).encode())
-        data = s.recv(BUFFER_SIZE)
-        return data
+    def send_announce(self):
+        message = json.dumps({'type': 'announce', 'files': self.files})
+        self.socket.sendall(message.encode('utf-8'))
+
+    def request_file(self, filename):
+        message = json.dumps({'type': 'request', 'file': filename})
+        self.socket.sendall(message.encode('utf-8'))
+        data = self.socket.recv(1024)
+        response = json.loads(data.decode('utf-8'))
+        print(f"Clients with {filename}: {response['clients']}")
+
+    def run(self):
+        while True:
+            filename = input("Enter filename to request: ")
+            if filename.lower() == 'exit':
+                break
+            self.request_file(filename)
+        self.socket.close()
 
 if __name__ == "__main__":
-    parts = []
-    for i in range(3):
-        part = request_file_part(i)
-        parts.append(part)
-        print(f"Received part {i}: {part.decode()}")
-
-    full_file = b''.join(parts)
-    print(f"Full file content: {full_file.decode()}")
+    files = sys.argv[1:] if len(sys.argv) > 1 else []
+    client = Client(files=files)
+    client.run()
