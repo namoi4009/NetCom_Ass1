@@ -10,7 +10,7 @@ from typing import List, Dict
 import time
 
 class Client():
-    def __init__(self, server_host='localhost', server_port=50004, upload_IP='localhost') -> None:
+    def __init__(self, server_host='192.168.1.137', server_port=50004, upload_IP='192.168.1.137') -> None:
         # the socket to listen to server messages
         self.server_listen_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # the socket to send messages to the server
