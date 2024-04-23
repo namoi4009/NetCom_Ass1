@@ -2,7 +2,7 @@ import socket
 import threading
 import os
 import re
-from tqdm import tqdm
+# from tqdm import tqdm
 from config import args
 import sys
 import select
@@ -446,7 +446,7 @@ class Client():
             return False
         
         download_description = file_name + ' from ' + '(' + upload_address[0] + ', ' + upload_address[1] + ')'
-        progess_bar = tqdm(total=file_size, desc=download_description, leave=True, unit_scale=True, unit='B', position=position, file=sys.stdout, colour='green')
+        # progess_bar = tqdm(total=file_size, desc=download_description, leave=True, unit_scale=True, unit='B', position=position, file=sys.stdout, colour='green')
 
 
         if full_download:
