@@ -3,11 +3,12 @@ import threading
 import os
 import re
 # from tqdm import tqdm
-from config import args
 import sys
 import select
 from typing import List, Dict
 import time
+
+DOWNLOAD_QUEUE_LENGTH = 20
 
 class Client():
     def __init__(self, server_host='192.168.1.137', server_port=50004, upload_IP='192.168.1.137') -> None:
@@ -19,7 +20,7 @@ class Client():
         # The upload address (listen forever for upload requests)
         self.upload_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.upload_sock.bind((upload_IP, 0))
-        self.upload_sock.listen(args.DOWNLOAD_QUEUE_LENGTH)
+        self.upload_sock.listen(DOWNLOAD_QUEUE_LENGTH)
 
         # The keep-alive sockets
         self.send_keep_alive_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

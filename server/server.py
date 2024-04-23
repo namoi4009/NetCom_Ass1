@@ -1,17 +1,18 @@
 import socket
 import threading
 import time
-from config import args
 import re
 import select
 from typing import Dict
 import time
 
+MAX_CLIENTS = 20
+
 class Server:     
     def __init__(self, host='192.168.1.137', port=50004) -> None:
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.bind((host, port))
-        self.sock.listen(args.MAX_CLIENTS)
+        self.sock.listen(MAX_CLIENTS)
         print(f"Listening on {host} {port}")
 
         self.listening_thread = threading.Thread(target=self.serve_forever, daemon=True)
