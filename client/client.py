@@ -457,7 +457,6 @@ class Client():
 
         with open('temp/' + file_name, 'wb') as file:
             if not full_download:
-                progess_bar.update(self.unfinished_downloads[file_name].current_size)
                 file.seek(self.unfinished_downloads[file_name].current_size)
             while received_bytes < file_size:
                 data = recv_timeout(sock, 65536, 60)
@@ -469,7 +468,6 @@ class Client():
                         self.unfinished_downloads[file_name].current_size = received_bytes
                     return False
                 received_bytes += len(data)
-                progess_bar.update(len(data))
                 file.write(data)
                 file.flush()
         
