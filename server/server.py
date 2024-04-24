@@ -33,6 +33,11 @@ def broadcast(message, connection):
             except:
                 client.close()
                 
+# Server would need to handle requests for specific pieces
+def handle_piece_request(conn, piece_index):
+    # Here you would fetch and send the requested piece
+    pass
+                
 def main():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server:
         server.bind((HOST, PORT))
