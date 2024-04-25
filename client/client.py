@@ -3,10 +3,10 @@ import threading
 import json
 import hashlib
 
-MAX_REQUEST_QUEUE = 20
 SERVER_HOST = "192.168.1.137"
 SERVER_PORT = 65432
 
+MAX_REQUEST_QUEUE = 20
 BUFFER_SIZE = 1024
 
 def receive_messages(sock):
