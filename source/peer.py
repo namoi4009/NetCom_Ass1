@@ -4,10 +4,6 @@ from bencode import bencode,bdecode
 import threading
 import json
 
-###########################################START################################################
-#                                   PEER'S GLOBAL VARIABLES                                    #
-###########################################START################################################
-
 # Constants
 HEADER = 1024
 FORMAT = 'utf-8'
@@ -24,10 +20,7 @@ running=True
 tracker_connected=False
 connected_peers={}
 
-
 Peer_set=[]
-
-
 
 this_peer_info={
     # "peer_id": peer_id,
@@ -43,7 +36,6 @@ send_peer_port=6000
 listening_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 listening_socket.bind((this_peer_info["ip"], this_peer_info["listen_port"]))
 
-
 send_tracker_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 send_tracker_socket.bind((this_peer_info["ip"],send_tracker_port))
 
@@ -51,16 +43,6 @@ send_peer_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 send_peer_socket.bind((this_peer_info["ip"],send_peer_port))
 
 request_sender_socket={} # "[ip] [port]": socket
-
-
-
-###########################################END##################################################
-#                                   PEER'S GLOBAL VARIABLES                                    #
-###########################################END##################################################
-
-###########################################START################################################
-#                                   PEER COMMAND FUNCTIONS                                     #
-###########################################START################################################
 
 # peer-tracker communication cmds: 
 
@@ -116,11 +98,10 @@ def quit_torrent(): # done
 def connect_peer(target_peer_IP,target_peer_port): # done
     print(target_peer_IP,target_peer_port)
     target_peer_addr= (target_peer_IP,int(target_peer_port))
-    ################################################################
     request_sender_socket[f"{target_peer_IP} {target_peer_port}"]=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     current_request_sender_socket=request_sender_socket[f"{target_peer_IP} {target_peer_port}"]
     current_request_sender_socket.connect(target_peer_addr) 
-    ################################################################
+    
     current_request_sender_socket.send(bencode(this_peer_info).encode(FORMAT))                           # 1/ establish connection to target peer
     received_msg = current_request_sender_socket.recv(2048).decode(FORMAT)           # 2/ Target peer response: "Peer[target_peer_ip,target_peer_port] established connection to Peer[this_peer_ip]"
     print(bdecode(received_msg))
@@ -230,13 +211,6 @@ def check_merge_file(file_name): # done
             merge=False
             break
     return merge
-###########################################END##################################################
-#                                   PEER COMMAND FUNCTIONS                                     #
-###########################################END##################################################
-
-###########################################START################################################
-#                                   PEER LISTENING FUNCTIONS                                   #
-###########################################START################################################
 
 def handle_request_peer_connection(this_request_handler_socket,request_peer_addr): # done
     request_peer_info_msg=this_request_handler_socket.recv(HEADER).decode(FORMAT)
@@ -300,28 +274,12 @@ def handle_request_peer_connection(this_request_handler_socket,request_peer_addr
                     this_request_handler_socket.send(bencode("Invalid command").encode(FORMAT))
     this_request_handler_socket.close()
 
-###########################################END##################################################
-#                                   PEER LISTENING FUNCTIONS                                   #
-###########################################END##################################################
-
-###########################################START################################################
-#                                       PEER INIT FUNCTION                                     #
-###########################################START################################################
-
 def peer_init():
     global TRACKER_IP, TRACKER_PORT, CHUNK_SIZE, TORRENT_STRUCTURE
     TRACKER_IP, TRACKER_PORT, CHUNK_SIZE = read_torrent_file_part1()
     TORRENT_STRUCTURE = read_torrent_file_part2()  # Move this line here
     this_peer_info["chunk_status"] = update_chunk_status()
     see_chunk_status()
-
-###########################################END##################################################
-#                                       PEER INIT FUNCTION                                     #
-###########################################END##################################################
-
-###########################################START################################################
-#                                       OTHER FUNCTIONS                                        #
-###########################################START################################################
 
 def read_torrent_file_part1():
     global TRACKER_ADDR
@@ -390,9 +348,7 @@ def send_file(client_socket, file_path):
         data = file.read()
         client_socket.sendall(data)
 
-###########################################END##################################################
-#                                       OTHER FUNCTIONS                                        #
-###########################################END##################################################
+################Using the above defined functions#################
 
 def command_handler(user_input):
     global running, tracker_connected, connected_peers
