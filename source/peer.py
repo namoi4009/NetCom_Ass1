@@ -12,7 +12,7 @@ TRACKER_IP = "" # get from torrent file
 CHUNK_SIZE = 0
 TRACKER_ADDR = None
 TORRENT_STRUCTURE={}
-MEMORY_DIR="Memory"
+MEMORY_DIR="Chunks"
 TORRENT_FILE="torrent_file"
 
 # Variables
@@ -25,7 +25,7 @@ Peer_set=[]
 this_peer_info={
     # "peer_id": peer_id,
     "ip": socket.gethostbyname(socket.gethostname()),
-    "listen_port": 7000, # used to listen to other peer's command
+    "listen_port": 65432, # used to listen to other peer's command
     "chunk_status": {}, # {"filesplit_part1":True,"filesplit_part2":False,...} True=exist in memory; False=missing
     "downloaded": 0,
     "uploaded": 0

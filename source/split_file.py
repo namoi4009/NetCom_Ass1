@@ -1,6 +1,6 @@
 import os 
 
-MEM="Memory"
+MEM="Chunks"
 SIZE=1024*512
 
 def split_file(file_name):
@@ -25,5 +25,5 @@ def split_file(file_name):
             chunk_number += 1
 
 if __name__ == "__main__":
-    split_file("file1.webm")
-    split_file("file2.webm")
+    split_file("Original_Files/file1.webm")
+    split_file("Original_Files/file2.webm")

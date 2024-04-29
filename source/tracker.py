@@ -6,9 +6,11 @@ from bencode import bencode,bdecode
 
 
 HEADER = 1024
-PORT = 7001
-SERVER = socket.gethostbyname(socket.gethostname())
+
+SERVER = "192.168.240.1"
+PORT = 65432
 ADDR = (SERVER,PORT)
+
 FORMAT = 'utf-8'
 LOCK = threading.Lock()
 PEER_SET=[]
