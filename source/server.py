@@ -62,7 +62,7 @@ def manage_client_connection(client_socket, client_address):
                     is_connected = False
                 case _:
                     client_socket.send(
-                        bencode("Unknown command").encode(ENCODING))
+                        bencode("U\n").encode(ENCODING))
     client_socket.close()
 
 

@@ -37,12 +37,8 @@ send_client_port = 9013    # to receive data from other
 listening_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 listening_socket.bind((this_client_info["ip"], this_client_info["listen_port"]))
 
-
 send_server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 send_server_socket.bind((this_client_info["ip"], send_server_port))
-
-send_client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-send_client_socket.bind((this_client_info["ip"], send_client_port))
 
 request_sender_socket = {} 
 
@@ -312,16 +308,18 @@ def handle_request_client_connection(this_request_handler_socket, request_client
 # File Handler
 
 def read_torrent_file():
-    torrent_file = TORRENT_FILE
-    memory_dir = MEMORY_DIR
-    torrent_file_path = os.path.join(memory_dir, torrent_file)
+    torrent_file_path = os.path.join(MEMORY_DIR, TORRENT_FILE)
     
-    with open(torrent_file_path, 'r') as file:
-        for _ in range(3):
-            next(file)
-        torrent_structure = json.load(file)
-
-    return torrent_structure
+    try:
+        with open(torrent_file_path, 'r') as file:
+            torrent_structure = json.load(file)
+        return torrent_structure
+    except FileNotFoundError:
+        print("The torrent file could not be found.")
+        return None
+    except json.JSONDecodeError:
+        print("Failed to parse the torrent file. Ensure it is in valid JSON format.")
+        return None
 
 
 def init_chunk_status():
