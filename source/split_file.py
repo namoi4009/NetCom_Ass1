@@ -1,13 +1,14 @@
 import os 
 
-MEM="Chunks"
 SIZE=1024*512
 
 def split_file(file_name):
-    memory_dir=MEM
+    origin="Original_Files" # this folder contains original files
+    desti = "Chunks"        # this folder contains splited files
+    
     chunk_size=SIZE 
     # Open the file for reading in binary mode
-    with open(os.path.join(memory_dir, file_name), 'rb') as file:
+    with open(os.path.join(origin, file_name), 'rb') as file:
         chunk_number = 1
         while True:
             # Read a chunk of data
@@ -16,7 +17,7 @@ def split_file(file_name):
                 break  # No more data to read
             
             # Create a filename for the chunk
-            chunk_filename = f"{memory_dir}/{os.path.basename(file_name)}.part{chunk_number}"
+            chunk_filename = f"{desti}/{os.path.basename(file_name)}.part{chunk_number}"
             
             # Write the chunk data to the chunk file
             with open(chunk_filename, 'wb') as chunk_file:
@@ -25,5 +26,5 @@ def split_file(file_name):
             chunk_number += 1
 
 if __name__ == "__main__":
-    split_file("Original_Files/file1.webm")
-    split_file("Original_Files/file2.webm")
+    split_file("mv1.mp4")
+    split_file("mv2.mp4")
