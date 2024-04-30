@@ -21,10 +21,6 @@ tracker_listening_socket.bind(ADDR)
 
 def handle_peer_connection(peer_handler_socket, peer_addr):  # Run for each Peer connected
 
-    # Receive peer information
-    # peer_info_length = conn.recv(HEADER).decode(FORMAT)
-    # peer_info_length = int(peer_info_length)
-    # peer_info = bdecode(conn.recv(peer_info_length).decode(FORMAT))
     print(peer_addr)
     peer_info_msg=peer_handler_socket.recv(HEADER).decode(FORMAT)
     peer_info=bdecode(peer_info_msg)
