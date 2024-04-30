@@ -40,6 +40,9 @@ listening_socket.bind((this_client_info["ip"], this_client_info["listen_port"]))
 send_server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 send_server_socket.bind((this_client_info["ip"], send_server_port))
 
+send_client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+send_client_socket.bind((this_client_info["ip"],send_client_port))
+
 request_sender_socket = {} 
 
 # client-server communication cmds:
