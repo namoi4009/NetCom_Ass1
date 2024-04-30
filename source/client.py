@@ -60,7 +60,7 @@ def get_client_set():
     global client_set
     if not check_server_connected():
         return
-    send_server_socket.send(bencode("/get_client_set").encode(CHAR_TYPE))
+    send_server_socket.send(bencode("get_client_set").encode(CHAR_TYPE))
     received_msg = send_server_socket.recv(2048).decode(CHAR_TYPE)
     client_set = bdecode(received_msg)
 
@@ -69,7 +69,7 @@ def update_status_to_server():
     if not check_server_connected():
         return
     send_server_socket.send(
-        bencode("/update_status_to_server"+" "+bencode(this_client_info)).encode(CHAR_TYPE))
+        bencode("update_status_to_server"+" "+bencode(this_client_info)).encode(CHAR_TYPE))
     received_msg = send_server_socket.recv(2048).decode(CHAR_TYPE)
     print(bdecode(received_msg))
     get_client_set()
@@ -79,7 +79,7 @@ def disconnect_server():
     global server_connected
     if not check_server_connected():
         return
-    send_server_socket.send(bencode("/disconnect_server").encode(CHAR_TYPE))
+    send_server_socket.send(bencode("disconnect_server").encode(CHAR_TYPE))
     received_msg = send_server_socket.recv(2048).decode(CHAR_TYPE)
     print(bdecode(received_msg))
     send_server_socket.close()
@@ -90,7 +90,7 @@ def quit_torrent():
     global running, server_connected
     if not check_server_connected():
         connect_server()
-    send_server_socket.send(bencode("/quit_torrent").encode(CHAR_TYPE))
+    send_server_socket.send(bencode("quit_torrent").encode(CHAR_TYPE))
     received_msg = send_server_socket.recv(2048).decode(CHAR_TYPE)
     print(bdecode(received_msg))
     running = False
@@ -119,7 +119,7 @@ def ping(target_client_IP, target_client_port):
         return
     current_request_sender_socket = request_sender_socket[f"{target_client_IP} {target_client_port}"]
     current_request_sender_socket.send(
-        bencode(f"/ping {target_client_IP} {target_client_port}").encode(CHAR_TYPE))
+        bencode(f"ping {target_client_IP} {target_client_port}").encode(CHAR_TYPE))
     received_msg = current_request_sender_socket.recv(2048).decode(CHAR_TYPE)
     print(bdecode(received_msg))
 
@@ -129,7 +129,7 @@ def request_download(target_client_ip, target_client_port, missing_chunk):
         return
     current_request_sender_socket = request_sender_socket[f"{target_client_ip} {target_client_port}"]
     current_request_sender_socket.send(bencode(
-        f"/request_download {target_client_ip} {target_client_port} {missing_chunk}").encode(CHAR_TYPE))
+        f"request_download {target_client_ip} {target_client_port} {missing_chunk}").encode(CHAR_TYPE))
     received_msg = bdecode(
         current_request_sender_socket.recv(2048).decode(CHAR_TYPE))
     print(received_msg)
@@ -150,7 +150,7 @@ def disconnect_client(target_client_IP, target_client_port):
         return
     current_request_sender_socket = request_sender_socket[f"{target_client_IP} {target_client_port}"]
     current_request_sender_socket.send(
-        bencode(f"/disconnect_client {target_client_IP} {target_client_port}").encode(CHAR_TYPE))
+        bencode(f"disconnect_client {target_client_IP} {target_client_port}").encode(CHAR_TYPE))
     received_msg = current_request_sender_socket.recv(2048).decode(CHAR_TYPE)
     print(bdecode(received_msg))
     connected_clients[f"{target_client_IP} {target_client_port}"] = False
@@ -256,7 +256,7 @@ def handle_request_client_connection(this_request_handler_socket, request_client
 
             msg_parts = msg.split()
             match msg_parts[0]:
-                case "/ping":
+                case "ping":
                     if (len(msg_parts) != 3):
                         print(
                             "Invalid CHAR_TYPE! Please provide both request client IP and port.")
@@ -270,7 +270,7 @@ def handle_request_client_connection(this_request_handler_socket, request_client
                         this_request_handler_socket.send(bencode(
                             f"client[{this_client_ip},{this_client_listen_port}] received ping from client[{request_client_ip},{request_client_port}]").encode(CHAR_TYPE))  # send to client
 
-                case "/request_download":
+                case "request_download":
                     file_path = os.path.join(MEMORY_DIR, msg_parts[3])
                     if os.path.exists(file_path):  # if chunk exists on server
                         print(
@@ -287,7 +287,7 @@ def handle_request_client_connection(this_request_handler_socket, request_client
                             bencode(f"File {msg_parts[3]} not found!").encode(CHAR_TYPE))
 
                 # [target_client_IP] [target_client_port] 
-                case "/disconnect_client":
+                case "disconnect_client":
                     if (len(msg_parts) != 3):
                         print(
                             "Invalid CHAR_TYPE! Please provide both request client IP and port.")
@@ -364,18 +364,18 @@ def command_handler(user_input):
 
     match user_input_parts[0]:
 
-        case "/connect_server":
+        case "connect_server":
             connect_server()
-        case "/get_client_set":
+        case "get_client_set":
             get_client_set()
-        case "/update_status_to_server":
+        case "update_status_to_server":
             update_status_to_server()
-        case "/disconnect_server":
+        case "disconnect_server":
             disconnect_server()
-        case "/quit_torrent":
+        case "quit_torrent":
             quit_torrent()
 
-        case "/connect_client":
+        case "connect_client":
             if (len(user_input_parts) != 3):
                 print("Invalid CHAR_TYPE! Please provide both request client IP and port.")
                 return
@@ -383,7 +383,7 @@ def command_handler(user_input):
                 print("Invalid CHAR_TYPE! Please provide both target client IP and port.")
             else:
                 connect_client(user_input_parts[1], int(user_input_parts[2]))
-        case "/ping":
+        case "ping":
             if (len(user_input_parts) != 3):
                 print("Invalid CHAR_TYPE! Please provide both request client IP and port.")
                 return
@@ -392,7 +392,7 @@ def command_handler(user_input):
             else:
                 ping(user_input_parts[1], int(user_input_parts[2]))
 
-        case "/request_download":
+        case "request_download":
             if (len(user_input_parts) != 4):
                 print("Invalid CHAR_TYPE! Please provide both request client IP and port.")
                 return
@@ -401,7 +401,7 @@ def command_handler(user_input):
             else:
                 request_download(user_input_parts[1], int(
                     user_input_parts[2]), user_input_parts[3])
-        case "/disconnect_client": 
+        case "disconnect_client": 
             if (len(user_input_parts) != 3):
                 print("Invalid CHAR_TYPE! Please provide both request client IP and port.")
                 return
@@ -411,9 +411,9 @@ def command_handler(user_input):
                 disconnect_client(user_input_parts[1], int(user_input_parts[2]))
 
 
-        case "/check_server_connected":
+        case "check_server_connected":
             check_server_connected()
-        case "/check_target_client_connected": 
+        case "check_target_client_connected": 
             if (len(user_input_parts) != 3):
                 print("Invalid CHAR_TYPE! Please provide both request client IP and port.")
                 return
@@ -422,17 +422,17 @@ def command_handler(user_input):
             else:
                 check_target_client_connected(
                     user_input_parts[1], user_input_parts[2])
-        case "/see_this_client_info":
+        case "see_this_client_info":
             see_this_client_info()
-        case "/see_client_set":
+        case "see_client_set":
             see_client_set()
-        case "/see_connected":
+        case "see_connected":
             see_connected()
-        case "/see_torrent_struct":
+        case "see_torrent_struct":
             see_torrent_struct()
-        case "/see_chunk_status":
+        case "see_chunk_status":
             see_chunk_status()
-        case "/merge_chunks":
+        case "merge_chunks":
             if (len(user_input_parts) != 2):
                 print("Invalid CHAR_TYPE! Please provide file name.")
                 return
@@ -451,7 +451,7 @@ def command_thread():
         print(f"[{client_ip},{client_port}] ", end='')
         user_input = input()
         command_handler(user_input)
-        if (user_input == "/quit_torrent"):
+        if (user_input == "quit_torrent"):
             quit()
 
 

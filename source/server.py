@@ -25,7 +25,7 @@ def manage_client_connection(client_socket, client_address):
     print(f"\n[NEW CONNECTION] {client_ip} connected.")
 
     client_socket.send(bencode(
-        f"Tracker established connection to Client[{client_ip},{client_listen_port}]").encode(ENCODING))
+        f"Server established connection to Client[{client_ip},{client_listen_port}]").encode(ENCODING))
 
     if client_data not in PEER_LIST:
         PEER_LIST.append(client_data)
@@ -47,7 +47,7 @@ def manage_client_connection(client_socket, client_address):
                     updated_client_data = bdecode(command_parts[1])
                     refresh_peer_list(updated_client_data, PEER_LIST)
                     client_socket.send(bencode(
-                        f"Tracker updated Client[{client_ip},{client_listen_port}] status").encode(ENCODING))
+                        f"server updated Client[{client_ip},{client_listen_port}] status").encode(ENCODING))
                 case "/disconnect":
                     print(
                         f"[CLIENT DISCONNECTED] {client_ip},{client_listen_port}")
@@ -75,7 +75,7 @@ def refresh_peer_list(new_client_data, client_list):
 
 def run_server():
     server_socket.listen()
-    print(f"[LISTENING] Tracker is listening on {HOST_NAME}")
+    print(f"[LISTENING] server is listening on {HOST_NAME}")
     while True:
         client_socket, client_address = server_socket.accept()
         client_thread = threading.Thread(
@@ -85,5 +85,5 @@ def run_server():
 
 
 if __name__ == "__main__":
-    print("[STARTING] Tracker is starting")
+    print("[STARTING] server is starting")
     run_server()
