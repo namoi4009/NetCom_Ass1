@@ -1,0 +1,21 @@
+192.168.1.181
+7001
+524288
+{
+    "file1.webm" : [
+        "file1.webm.part1",
+        "file1.webm.part2",
+        "file1.webm.part3",
+        "file1.webm.part4",
+        "file1.webm.part5"
+    ],
+    "file2.webm" : [
+        "file2.webm.part1",
+        "file2.webm.part2",
+        "file2.webm.part3",
+        "file2.webm.part4",
+        "file2.webm.part5",
+        "file2.webm.part6",
+        "file2.webm.part7"
+    ]
+}

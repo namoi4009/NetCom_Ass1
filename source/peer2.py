@@ -1,4 +1,4 @@
-from peer_helper import *
+from peer_helper2 import *
 
 def command_handler(user_input):
     global running, tracker_connected, connected_peers
