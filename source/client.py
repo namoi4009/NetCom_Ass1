@@ -7,12 +7,12 @@ import json
 # Constants
 BUFFER_SIZE = 1024
 CHAR_TYPE = 'utf-8'
-SERVER_PORT = 0
-SERVER_IP = ""  # get from torrent file
-CHUNK_SIZE = 0
-SERVER_ADDR = None
+SERVER_PORT = 6789
+SERVER_IP = "192.168.31.118"
+CHUNK_SIZE = 524288
+SERVER_ADDR = (SERVER_IP, SERVER_PORT)
 TORRENT_STRUCTURE = {}
-MEMORY_DIR = "Memory"
+MEMORY_DIR = "Chunks"
 TORRENT_FILE = "torrent_file"
 
 # Variables
@@ -26,13 +26,13 @@ client_set = []
 
 this_client_info = {
     "ip": socket.gethostbyname(socket.gethostname()),
-    "listen_port": 9000,  #  to listen to other client's command
+    "listen_port": 9011,  #  to listen to other client's command
     "chunk_status": {},
     "downloaded": 0,
     "uploaded": 0
 }
-send_server_port = 9001  #  to send command to other clients or server
-send_client_port = 9002    # to receive data from other
+send_server_port = 9012  #  to send command to other clients or server
+send_client_port = 9013    # to receive data from other
 
 listening_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 listening_socket.bind((this_client_info["ip"], this_client_info["listen_port"]))
@@ -44,7 +44,7 @@ send_server_socket.bind((this_client_info["ip"], send_server_port))
 send_client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 send_client_socket.bind((this_client_info["ip"], send_client_port))
 
-request_sender_socket = {}  # "[ip] [port]": socket
+request_sender_socket = {} 
 
 # client-server communication cmds:
 def connect_server():  
@@ -229,8 +229,7 @@ def check_merge_file(file_name):
 # Init client
 def client_init():
     global SERVER_IP, SERVER_PORT, CHUNK_SIZE, TORRENT_STRUCTURE
-    SERVER_IP, SERVER_PORT, CHUNK_SIZE = read_torrent_file_part1()
-    TORRENT_STRUCTURE = read_torrent_file_part2()  # Move this line here
+    TORRENT_STRUCTURE = read_torrent_file()
     this_client_info["chunk_status"] = update_chunk_status()
     see_chunk_status()
     
@@ -311,23 +310,8 @@ def handle_request_client_connection(this_request_handler_socket, request_client
     this_request_handler_socket.close()
 
 # File Handler
-def read_torrent_file_part1():
-    global SERVER_ADDR
-    torrent_file = TORRENT_FILE
-    memory_dir = MEMORY_DIR
-    torrent_file_path = os.path.join(memory_dir, torrent_file)
 
-    with open(torrent_file_path, 'r') as file:
-        lines = file.readlines()[:3]
-
-        server_ip = lines[0].strip()
-        server_port = int(lines[1].strip())
-        chunk_size = int(lines[2].strip())
-    SERVER_ADDR = (server_ip, server_port)
-    return server_ip, server_port, chunk_size
-
-
-def read_torrent_file_part2():
+def read_torrent_file():
     torrent_file = TORRENT_FILE
     memory_dir = MEMORY_DIR
     torrent_file_path = os.path.join(memory_dir, torrent_file)
