@@ -1,5 +1,3 @@
-import os
-from time import sleep
 import threading
 import socket
 from bencode import bencode, bdecode
