@@ -73,7 +73,7 @@ def refresh_peer_list(new_client_data, client_list):
 
 def run_server():
     server_socket.listen()
-    print(f"[LISTENING] server is listening on {HOST_NAME}")
+    print(f"[LISTENING] server is listening on {HOST_NAME}, [{SERVER_PORT}]")
     while True:
         client_socket, client_address = server_socket.accept()
         client_thread = threading.Thread(
