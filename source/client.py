@@ -139,12 +139,13 @@ def request_download(target_client_ip, target_client_port, missing_chunk):
         with open(file_path, 'wb') as file:
             data = current_request_sender_socket.recv(1024*1024)
             file.write(data)
-        print("File received successfully!")
+        # print("File received successfully!")
         this_client_info["downloaded"] += 1
         this_client_info["chunk_status"] = update_chunk_status()
+        return 1
     else:
-        print("failed to request download!")
-
+        # print("failed to request download!")
+        return 0
 
 def disconnect_client(target_client_IP, target_client_port):  
     if not check_target_client_connected(target_client_IP, target_client_port):
@@ -259,11 +260,11 @@ def handle_request_client_connection(this_request_handler_socket, request_client
                 case "ping":
                     if (len(msg_parts) != 3):
                         print(
-                            "Invalid CHAR_TYPE! Please provide both request client IP and port.")
+                            "Invalid command")
                         return
                     if (not msg_parts[1] or not msg_parts[2]):
                         print(
-                            "Invalid CHAR_TYPE! Please provide both request client IP and port.")
+                            "Invalid command")
                     else:
                         print(
                             f"[PING RECEIVED] from client[{request_client_ip},{request_client_port}]")
@@ -290,11 +291,11 @@ def handle_request_client_connection(this_request_handler_socket, request_client
                 case "disconnect_client":
                     if (len(msg_parts) != 3):
                         print(
-                            "Invalid CHAR_TYPE! Please provide both request client IP and port.")
+                            "Invalid command")
                         return
                     if (not msg_parts[1] or not msg_parts[2]):
                         print(
-                            "Invalid CHAR_TYPE! Please provide both request client IP and port.")
+                            "Invalid command")
                     else:
                         print(
                             f"[REQUEST client DISCONNECTED THIS client] {msg_parts[1]}")
@@ -377,7 +378,7 @@ def command_handler(user_input):
 
         case "connect_client":
             if (len(user_input_parts) != 3):
-                print("Invalid CHAR_TYPE! Please provide both request client IP and port.")
+                print("Invalid command")
                 return
             if (not user_input_parts[1] or not user_input_parts[2]):
                 print("Invalid CHAR_TYPE! Please provide both target client IP and port.")
@@ -385,7 +386,7 @@ def command_handler(user_input):
                 connect_client(user_input_parts[1], int(user_input_parts[2]))
         case "ping":
             if (len(user_input_parts) != 3):
-                print("Invalid CHAR_TYPE! Please provide both request client IP and port.")
+                print("Invalid command")
                 return
             if (not user_input_parts[1] or not user_input_parts[2]):
                 print("Invalid CHAR_TYPE! Please provide both target client IP and port.")
@@ -393,20 +394,28 @@ def command_handler(user_input):
                 ping(user_input_parts[1], int(user_input_parts[2]))
 
         case "request_download":
-            if (len(user_input_parts) != 4):
-                print("Invalid CHAR_TYPE! Please provide both request client IP and port.")
-                return
-            if (not user_input_parts[1] or not user_input_parts[2] or not user_input_parts[3]):
-                print("Invalid CHAR_TYPE! Please provide both target client IP and port.")
+            if (len(user_input_parts > 2)):
+                print("Invalid command")
             else:
-                request_download(user_input_parts[1], int(
-                    user_input_parts[2]), user_input_parts[3])
+                maxChunk = len(this_client_info["chunk_status"])
+                filename = user_input_parts[1]
+                downloaded = 0
+                partNum = 1
+                
+                while partNum <= maxChunk:
+                    if this_client_info["chunk_status"].get(f"{filename}.part{partNum}") == 0:
+                        test1 = request_download("192.168.31.118", 9011, f"filename.part{partNum}")
+                        if (test1 == 0): test1 = request_download("192.168.31.118", 9021, f"{filename}.part{partNum}")
+                    downloaded += test1
+            if (downloaded == maxChunk):
+                merge_chunks(filename)
+            
         case "disconnect_client": 
             if (len(user_input_parts) != 3):
-                print("Invalid CHAR_TYPE! Please provide both request client IP and port.")
+                print("Invalid command")
                 return
             if (not user_input_parts[1] or not user_input_parts[2]):
-                print("Invalid CHAR_TYPE! Please provide both target client IP and port.")
+                print("Invalid command")
             else:
                 disconnect_client(user_input_parts[1], int(user_input_parts[2]))
 
@@ -415,10 +424,10 @@ def command_handler(user_input):
             check_server_connected()
         case "check_target_client_connected": 
             if (len(user_input_parts) != 3):
-                print("Invalid CHAR_TYPE! Please provide both request client IP and port.")
+                print("Invalid command")
                 return
             if (not user_input_parts[1] or not user_input_parts[2]):
-                print("Invalid CHAR_TYPE! Please provide both target client IP and port.")
+                print("Invalid command")
             else:
                 check_target_client_connected(
                     user_input_parts[1], user_input_parts[2])
@@ -434,10 +443,10 @@ def command_handler(user_input):
             see_chunk_status()
         case "merge_chunks":
             if (len(user_input_parts) != 2):
-                print("Invalid CHAR_TYPE! Please provide file name.")
+                print("Invalid command")
                 return
             if (not user_input_parts[1]):
-                print("Invalid CHAR_TYPE! Please provide file name.")
+                print("Invalid command")
             else:
                 merge_chunks(user_input_parts[1])
         case _:
@@ -468,7 +477,7 @@ if __name__ == "__main__":
     # Order that run automatically
     commands_queue.put("connect_server")
     
-    command_thrd = threading.Thread(target=command_thread)
+    command_thrd = threading.Thread(target=command_thread, args=(commands_queue,))
     command_thrd.start()
     listening_socket.listen()
     
