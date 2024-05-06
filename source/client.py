@@ -401,6 +401,7 @@ def command_handler(user_input):
                 filename = user_input_parts[1]
                 downloaded = 0
                 partNum = 1
+                test1 = 0
                 
                 while partNum <= maxChunk:
                     if this_client_info["chunk_status"].get(f"{filename}.part{partNum}") == 0:
