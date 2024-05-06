@@ -132,7 +132,7 @@ def request_download(target_client_ip, target_client_port, missing_chunk):
     current_request_sender_socket.send(bencode(
         f"request_download {target_client_ip} {target_client_port} {missing_chunk}").encode(CHAR_TYPE))
     received_msg = bdecode(
-        current_request_sender_socket.recv(2048).decode(CHAR_TYPE))
+        current_request_sender_socket.recv(4096).decode(CHAR_TYPE))
     print(received_msg)
     if received_msg != f"File {missing_chunk} not found!":
         file_path = os.path.join(MEMORY_DIR, missing_chunk)
@@ -394,7 +394,7 @@ def command_handler(user_input):
                 ping(user_input_parts[1], int(user_input_parts[2]))
 
         case "request_download":
-            if (len(user_input_parts > 2)):
+            if (len(user_input_parts) > 2):
                 print("Invalid command")
             else:
                 maxChunk = len(this_client_info["chunk_status"])
@@ -405,9 +405,10 @@ def command_handler(user_input):
                 
                 while partNum <= maxChunk:
                     if this_client_info["chunk_status"].get(f"{filename}.part{partNum}") == 0:
-                        test1 = request_download("192.168.31.118", 9011, f"filename.part{partNum}")
+                        test1 = request_download("192.168.31.118", 9011, f"{filename}.part{partNum}")
                         if (test1 == 0): test1 = request_download("192.168.31.118", 9021, f"{filename}.part{partNum}")
                     downloaded += test1
+                    partNum += 1
             if (downloaded == maxChunk):
                 merge_chunks(filename)
             
