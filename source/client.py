@@ -3,6 +3,7 @@ import socket
 from bencode import bencode, bdecode
 import threading
 import json
+import queue
 
 # Constants
 BUFFER_SIZE = 1024
@@ -230,7 +231,6 @@ def client_init():
     global SERVER_IP, SERVER_PORT, CHUNK_SIZE, TORRENT_STRUCTURE
     TORRENT_STRUCTURE = read_torrent_file()
     this_client_info["chunk_status"] = update_chunk_status()
-    see_chunk_status()
     
 # client Connection Handling
 def handle_request_client_connection(this_request_handler_socket, request_client_addr):  
@@ -444,24 +444,35 @@ def command_handler(user_input):
             pass
 
 
-def command_thread():
+def command_thread(commands_queue):
     while running:
-        client_ip = this_client_info["ip"]
-        client_port = this_client_info["listen_port"]
-        print(f"[{client_ip},{client_port}] ", end='')
-        user_input = input()
-        command_handler(user_input)
-        if (user_input == "quit_torrent"):
-            quit()
+        try:
+            command = commands_queue.get(timeout=2)
+            command_handler(command)
+            if (command == "quit_torrent"):
+                quit()
+        except queue.Empty:
+            client_ip = this_client_info["ip"]
+            client_port = this_client_info["listen_port"]
+            print(f"[{client_ip},{client_port}] ", end='')
+            user_input = input()
+            command_handler(user_input)
+            if (user_input == "quit_torrent"):
+                quit()
 
 
 if __name__ == "__main__":
     client_init()
+    commands_queue = queue.Queue()
+    
+    # Order that run automatically
+    commands_queue.put("connect_server")
+    
     command_thrd = threading.Thread(target=command_thread)
     command_thrd.start()
     listening_socket.listen()
+    
     while running:
-        
         request_handler_socket, request_client_addr = listening_socket.accept()
         thread = threading.Thread(target=handle_request_client_connection, args=(
             request_handler_socket, request_client_addr))  # create a "listening client" thread
