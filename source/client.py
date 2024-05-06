@@ -6,7 +6,7 @@ import json
 import queue
 
 # Constants
-BUFFER_SIZE = 1024
+BUFFER_SIZE = 4096
 CHAR_TYPE = 'utf-8'
 SERVER_PORT = 6789
 SERVER_IP = "192.168.31.118"
@@ -146,6 +146,27 @@ def request_download(target_client_ip, target_client_port, missing_chunk):
     else:
         # print("failed to request download!")
         return 0
+    
+def handle_download(order):
+    maxChunk = len(this_client_info["chunk_status"])
+    filename = order
+    downloaded = 0
+    partNum = 1
+    test1 = 0
+    
+    while partNum <= maxChunk:
+        if this_client_info["chunk_status"].get(f"{filename}.part{partNum}") == 0:
+            try:
+                test1 = request_download("192.168.31.118", 9011, f"{filename}.part{partNum}")
+            except:
+                continue
+        else:
+            print(f"{filename}.part{partNum} already exists.")
+            downloaded += 1
+        downloaded += test1
+        partNum += 1
+    if (downloaded == maxChunk):
+        merge_chunks(filename)
 
 def disconnect_client(target_client_IP, target_client_port):  
     if not check_target_client_connected(target_client_IP, target_client_port):
@@ -397,20 +418,8 @@ def command_handler(user_input):
             if (len(user_input_parts) > 2):
                 print("Invalid command")
             else:
-                maxChunk = len(this_client_info["chunk_status"])
-                filename = user_input_parts[1]
-                downloaded = 0
-                partNum = 1
-                test1 = 0
-                
-                while partNum <= maxChunk:
-                    if this_client_info["chunk_status"].get(f"{filename}.part{partNum}") == 0:
-                        test1 = request_download("192.168.31.118", 9011, f"{filename}.part{partNum}")
-                        if (test1 == 0): test1 = request_download("192.168.31.118", 9021, f"{filename}.part{partNum}")
-                    downloaded += test1
-                    partNum += 1
-            if (downloaded == maxChunk):
-                merge_chunks(filename)
+                update_chunk_status()
+                handle_download(user_input_parts[1])
             
         case "disconnect_client": 
             if (len(user_input_parts) != 3):
