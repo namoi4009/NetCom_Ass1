@@ -9,7 +9,7 @@ import queue
 BUFFER_SIZE = 1024
 CHAR_TYPE = 'utf-8'
 SERVER_PORT = 6789
-SERVER_IP = "192.168.31.118"
+SERVER_IP = "191.16.10.185"
 CHUNK_SIZE = 524288
 SERVER_ADDR = (SERVER_IP, SERVER_PORT)
 TORRENT_STRUCTURE = {}
@@ -155,8 +155,8 @@ def handle_download(order):
     for partNum in range(1, maxChunk + 1):
         part_name = f"{filename}.part{partNum}"
         if this_client_info["chunk_status"].get(part_name) == 0:
-            if not request_download("192.168.31.118", 9011, f"{filename}.part{partNum}"):
-                if not request_download("192.168.31.118", 9021, f"{filename}.part{partNum}"):
+            if not request_download(SERVER_IP, 9011, f"{filename}.part{partNum}"):
+                if not request_download(SERVER_IP, 9021, f"{filename}.part{partNum}"):
                     print(f"Failed to download {part_name} from both ports.")
                 else:
                     downloaded += 1
@@ -488,8 +488,8 @@ if __name__ == "__main__":
     
     # Order that run automatically
     commands_queue.put("connect_server")
-    commands_queue.put("connect_client 192.168.31.118 9011")
-    commands_queue.put("connect_client 192.168.31.118 9021")
+    commands_queue.put(f"connect_client {SERVER_IP} 9011")
+    commands_queue.put(f"connect_client {SERVER_IP} 9021")
     
     command_thrd = threading.Thread(target=command_thread, args=(commands_queue,))
     command_thrd.start()
