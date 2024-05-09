@@ -32,8 +32,8 @@ this_client_info = {
     "downloaded": 0,
     "uploaded": 0
 }
-send_server_port = 9012  #  to send command to other clients or server
-send_client_port = 9013    # to receive data from other
+send_server_port = 9012     # to send command to other clients or server
+send_client_port = 9013     # to receive data from other
 
 listening_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 listening_socket.bind((this_client_info["ip"], this_client_info["listen_port"]))
